@@ -1,30 +1,33 @@
-version: '3.8'
-services:
-  
-  app:
-    build: .
-    depends_on:
-      
-      - postgres
-    ports:
-      - "8080:8080"
-    volumes:
-      
-      - ./:/usr/src/app/
+version: "3.9"
 
-  
-  postgres:
-    image: postgres:14.1-alpine
-    restart: always
-    environment:
-      
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_DB=root
+services:
+  node_app:
+    container_name: node_app
+    build: .
+    image: francescoxx/node_live_app
     ports:
-      # Standard port for PostgreSQL databases
+      - "3000:3000"
+    environment:
+      - PG_DB=node_live_db
+      - PG_USER=francesco
+      - PG_PASSWORD=12345
+      - PG_HOST=node_db
+    depends_on:
+      - node_db
+  
+  node_db:
+    container_name: node_db
+    image: postgres:12
+    ports:
       - "5432:5432"
+    environment:
+      - POSTGRES_DB=node_live_db
+      - POSTGRES_USER=francesco
+      - POSTGRES_PASSWORD=12345
     volumes:
- 
-      # our seed file to that directory so that it gets run
-      - ./database-seed.sql:/docker-entrypoint-initdb.d/database-seed.sql
+      - node_db_data:/var/lib/postgresql/data
+
+volumes:
+  node_db_data: {}
+
+
